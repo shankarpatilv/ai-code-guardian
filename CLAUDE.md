@@ -31,9 +31,20 @@ claude --plugin-dir .         # Test plugin locally
 - **Architecture**: `docs/architecture.md` - Technical details
 - **Task Plan**: `.claude/tasks/master-plan.md` - Development phases
 - **Session History**: `.claude/memories/` - Previous sessions
+- **Development Agents**: `.claude/agents/` - Specialized coding agents
 - **Plugin Config**: `.claude-plugin/plugin.json`
 - **Hooks**: `hooks/hooks.json`
 - **Core Logic**: `src/` folder
+
+### Development Agents
+**"Use the orchestrator agent"** - Main coordinator for complex tasks
+- Delegates to: frontend-developer, backend-developer, test-engineer, documentation-writer
+- Example: "Use the orchestrator agent to implement the hook system"
+
+**Direct agent usage** for specific tasks:
+- "Use the backend-developer agent to create the analyzer"
+- "Use the test-engineer agent to write tests for hooks"
+- "Use the documentation-writer agent to update the API docs"
 
 ### Memory Triggers
 
