@@ -200,6 +200,11 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
 
   private parseHookJson(jsonString: string): { tool: string; filePath: string; content: string | string[]; language?: string } | null {
     try {
+      // Security: Limit JSON size to prevent DoS attacks
+      if (jsonString.length > 10485760) { // 10MB limit
+        throw new Error(`JSON input too large: ${jsonString.length} bytes (max 10MB)`);
+      }
+      
       const data = JSON.parse(jsonString);
       
       // Extract operation from tool name

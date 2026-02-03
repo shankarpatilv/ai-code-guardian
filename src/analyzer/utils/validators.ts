@@ -19,8 +19,30 @@ export function validateFilePath(filePath: string): boolean {
     return false;
   }
   
-  // Check for basic path format
-  return true; // In Phase 1, we're permissive
+  // Security: Prevent path traversal attacks
+  if (filePath.includes('../') || filePath.includes('..\\')) {
+    return false;
+  }
+  
+  // Prevent null bytes and dangerous characters
+  if (filePath.includes('\0') || filePath.includes('\x00')) {
+    return false;
+  }
+  
+  // Prevent absolute paths to sensitive directories (basic protection)
+  const dangerousPrefixes = ['/etc/', '/proc/', '/sys/', '/dev/', 'C:\\Windows\\', 'C:\\System32\\'];
+  for (const prefix of dangerousPrefixes) {
+    if (filePath.startsWith(prefix)) {
+      return false;
+    }
+  }
+  
+  // Check for dangerous shell characters
+  if (/[;|&`$()<>{}]/.test(filePath)) {
+    return false;
+  }
+  
+  return true;
 }
 
 /**
@@ -31,7 +53,14 @@ export function validateLanguage(language: string): boolean {
     return false;
   }
   
-  return true; // In Phase 1, we accept any language
+  // Only allow known safe language identifiers (matching SupportedLanguage type)
+  const allowedLanguages = [
+    'javascript', 'typescript', 'python', 'java', 'c', 'cpp', 'csharp',
+    'go', 'rust', 'ruby', 'php', 'swift', 'kotlin', 'scala', 'r', 'objc',
+    'bash', 'sql', 'html', 'css', 'json', 'xml', 'yaml', 'markdown', 'unknown'
+  ];
+  
+  return allowedLanguages.includes(language.toLowerCase());
 }
 
 /**
