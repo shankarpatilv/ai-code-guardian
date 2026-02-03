@@ -1,7 +1,14 @@
 import { CodeGuardianAnalyzer, createAnalyzer } from './analyzer';
 import { Logger } from './utils/logger';
+import { AnalysisIssue, CodeAnalysis } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
+
+interface HookData {
+  tool: string;
+  file_path: string;
+  content: string;
+}
 
 export class HookHandler {
   private analyzer: CodeGuardianAnalyzer;
@@ -43,7 +50,7 @@ export class HookHandler {
   }
 
 
-  private outputIssues(issues: any[]): void {
+  private outputIssues(issues: AnalysisIssue[]): void {
     if (issues.length === 0) {
       return;
     }
@@ -111,7 +118,7 @@ export class HookHandler {
     console.error('\n' + '='.repeat(60) + '\n');
   }
 
-  private saveAnalysis(analysis: any): void {
+  private saveAnalysis(analysis: CodeAnalysis): void {
     const debugDir = path.join(process.cwd(), '.ai-code-guardian', 'debug');
     
     // Create debug directory if it doesn't exist
@@ -129,18 +136,25 @@ export class HookHandler {
 }
 
 // Helper functions for backward compatibility with tests
-export function createHookDataFromArgs(args: string[]): any {
+export function createHookDataFromArgs(args: string[]): HookData {
   if (args.length < 3) {
     throw new Error('Insufficient arguments for hook data');
   }
   
   return {
-    tool: args[0],
-    file_path: args[1],
-    content: args[2]
+    tool: args[0] || '',
+    file_path: args[1] || '',
+    content: args[2] || ''
   };
 }
 
-export function validateHookData(data: any): boolean {
-  return !!(data && data.tool && data.file_path && data.content);
+export function validateHookData(data: unknown): data is HookData {
+  return !!(data && 
+           typeof data === 'object' && 
+           'tool' in data && 
+           'file_path' in data && 
+           'content' in data &&
+           typeof (data as HookData).tool === 'string' &&
+           typeof (data as HookData).file_path === 'string' &&
+           typeof (data as HookData).content === 'string');
 }

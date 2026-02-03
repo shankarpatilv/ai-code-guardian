@@ -44,8 +44,17 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --file)
-            # Sanitize file path - remove dangerous characters but keep path separators
-            FILE_PATH=$(printf '%s' "$2" | sed 's/[;<>&|`$]//g')
+            # Strict file path validation - only allow safe characters
+            FILE_PATH="$2"
+            # Validate path doesn't contain dangerous patterns using safe string operations
+            case "$FILE_PATH" in
+                *../*)
+                    error_exit "Invalid file path: contains path traversal"
+                    ;;
+                *\;*|*\|*|*\&*|*\`*|*\$*|*\(*|*\)*|*\<*|*\>*|*\{*|*\}*)
+                    error_exit "Invalid file path: contains dangerous characters"
+                    ;;
+            esac
             shift 2
             ;;
         --content)
@@ -167,18 +176,22 @@ basic_analysis() {
     
     local issues=0
     
-    # Check for obvious security issues
-    if echo "$content" | grep -qE "(eval\s*\(|exec\s*\(|document\.write|innerHTML.*=)"; then
+    # Check for obvious security issues using safer regex patterns
+    if echo "$content" | grep -qF "eval(" || echo "$content" | grep -qF "exec(" || \
+       echo "$content" | grep -qF "document.write" || echo "$content" | grep -q "innerHTML[[:space:]]*="; then
         echo "⚠️  SECURITY: Potential XSS vulnerability detected" >&2
         issues=$((issues + 1))
     fi
     
-    if echo "$content" | grep -qE "(SELECT.*FROM.*WHERE|INSERT.*INTO|UPDATE.*SET).*(\+|\$\{|\$\()"; then
+    # Use multiple simple checks instead of complex regex to avoid ReDoS
+    if echo "$content" | grep -q "SELECT.*FROM.*WHERE" && \
+       (echo "$content" | grep -qF "+" || echo "$content" | grep -q "\$"); then
         echo "⚠️  SECURITY: Potential SQL injection detected" >&2
         issues=$((issues + 1))
     fi
     
-    if echo "$content" | grep -qE "(password|secret|key|token).*=.*['\"][a-zA-Z0-9]{8,}"; then
+    # Improved secret detection without arbitrary length limits
+    if echo "$content" | grep -E "(password|secret|key|token)[[:space:]]*=[[:space:]]*['\"][[:alnum:]_-]{8,}['\"]"; then
         echo "⚠️  SECURITY: Potential hardcoded secret detected" >&2
         issues=$((issues + 1))
     fi

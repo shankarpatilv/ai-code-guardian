@@ -31,8 +31,30 @@ export class InputHandler {
       return false;
     }
 
-    // Basic validation - check if it's not empty and doesn't contain null characters
-    return !filePath.includes('\0');
+    // Security: Prevent path traversal attacks
+    if (filePath.includes('../') || filePath.includes('..\\')) {
+      return false;
+    }
+
+    // Prevent null bytes and dangerous characters
+    if (filePath.includes('\0') || filePath.includes('\x00')) {
+      return false;
+    }
+
+    // Prevent absolute paths to sensitive directories (basic protection)
+    const dangerousPrefixes = ['/etc/', '/proc/', '/sys/', '/dev/', 'C:\\Windows\\', 'C:\\System32\\'];
+    for (const prefix of dangerousPrefixes) {
+      if (filePath.startsWith(prefix)) {
+        return false;
+      }
+    }
+
+    // Check for dangerous shell characters
+    if (/[;|&`$()<>{}]/.test(filePath)) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
