@@ -1,4 +1,4 @@
-import { CodeAnalysis, AnalysisIssue, AnalyzerConfig, HookResult, SupportedLanguage } from '../types';
+import { CodeAnalysis, AnalysisIssue, AnalyzerConfig, HookResult, SupportedLanguage, PerformanceStats, EditOperation } from '../types';
 import { IAnalyzer } from '../interfaces';
 import { Logger } from '../utils/logger';
 import { PerformanceTimer } from '../utils/performance';
@@ -69,9 +69,18 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
         this.logger.info(`Analyzing ${filePath} (${detectedLanguage})`);
       }
 
-      // Perform analysis using our modularized components
-      const issues = await this.performAnalysis(content, filePath);
-      const metrics = this.metricsCalculator.calculateBasicMetrics(content);
+      // Split lines once for better performance
+      const lines = content.split('\n');
+
+      // Perform analysis using our modularized components with timeout
+      const analysisPromise = this.performAnalysisWithLines(content, filePath, lines);
+      const metricsPromise = Promise.resolve(this.metricsCalculator.calculateBasicMetricsWithLines(content, lines));
+      
+      const [issues, metrics] = await this.withTimeout(
+        Promise.all([analysisPromise, metricsPromise]), 
+        this.config.performance.timeout,
+        'Analysis timeout exceeded'
+      );
 
       timer.mark('analysis-complete');
       const analysisTime = timer.measure('analysis', 'start');
@@ -101,11 +110,27 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
 
   async analyzeFile(filePath: string, language?: SupportedLanguage): Promise<CodeAnalysis> {
     try {
-      const content = await readFile(filePath, 'utf-8');
+      // Add timeout to file reading as well
+      const content = await this.withTimeout(
+        readFile(filePath, 'utf-8'),
+        this.config.performance.timeout / 2, // Use half the timeout for file reading
+        `File reading timeout for ${filePath}`
+      );
       return this.analyze(filePath, content, language);
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to read file: ${filePath}`, error as Error);
-      throw new Error(`Cannot read file: ${filePath}`);
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('ENOENT')) {
+        throw new Error(`File not found: ${filePath}`);
+      } else if (errorMessage.includes('EACCES')) {
+        throw new Error(`Permission denied: ${filePath}`);
+      } else if (errorMessage.includes('timeout')) {
+        throw new Error(`File reading timeout: ${filePath}`);
+      } else {
+        throw new Error(`Cannot read file: ${filePath} - ${errorMessage}`);
+      }
     }
   }
 
@@ -136,11 +161,29 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
         };
       }
 
-      // Analyze the content from hook
-      const analysis = await this.analyzeContent(
-        Array.isArray(hookData.content) ? hookData.content.join('\n') : hookData.content,
-        hookData.language as SupportedLanguage || detectLanguage(hookData.filePath),
-        hookData.filePath
+      // Analyze the content from hook with timeout protection
+      const contentString = Array.isArray(hookData.content) ? hookData.content.join('\n') : hookData.content;
+      const analysisLanguage = hookData.language as SupportedLanguage || detectLanguage(hookData.filePath);
+      
+      // Add input validation
+      if (!contentString || contentString.length === 0) {
+        return {
+          success: false,
+          error: 'Empty or invalid content provided'
+        };
+      }
+
+      if (contentString.length > this.config.performance.maxFileSize) {
+        return {
+          success: false,
+          error: `Content too large: ${contentString.length} bytes (max: ${this.config.performance.maxFileSize})`
+        };
+      }
+
+      const analysis = await this.withTimeout(
+        this.analyzeContent(contentString, analysisLanguage, hookData.filePath),
+        this.config.performance.timeout,
+        'Hook analysis timeout'
       );
 
       const duration = timer.measure('hook-analysis', 'start');
@@ -158,9 +201,28 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
     }
   }
 
-  private async performAnalysis(content: string, filePath: string): Promise<AnalysisIssue[]> {
-    // Use the pattern registry to detect all patterns
-    return await this.patternRegistry.detectAllPatterns(content, filePath);
+  /**
+   * Perform analysis using pre-split lines for optimal performance
+   * This method eliminates redundant line splitting across multiple detectors
+   * @param _content Original content string (unused but kept for signature compatibility)
+   * @param filePath Path to the file being analyzed
+   * @param lines Pre-split content lines
+   * @returns Array of detected issues
+   */
+  private async performAnalysisWithLines(_content: string, filePath: string, lines: string[]): Promise<AnalysisIssue[]> {
+    // Use the pattern registry to detect all patterns with pre-split lines
+    const allIssues: AnalysisIssue[] = [];
+
+    // Run all detectors in parallel for better performance, sharing the pre-split lines
+    const [securityIssues, qualityIssues] = await Promise.all([
+      this.patternRegistry.securityDetector.detectPatternsWithLines(lines, filePath),
+      this.patternRegistry.qualityDetector.detectPatternsWithLines(lines, filePath),
+    ]);
+
+    allIssues.push(...securityIssues);
+    allIssues.push(...qualityIssues);
+
+    return allIssues;
   }
 
   private parseHookArgs(args: string[]): { tool: string; filePath: string; content: string | string[]; language?: string } | null {
@@ -223,7 +285,7 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
         content = data.new_string || '';
         filePath = data.file_path || '';
       } else if (tool === 'MultiEdit') {
-        content = (data.edits || []).map((edit: any) => edit.new_string);
+        content = (data.edits || []).map((edit: EditOperation) => edit.new_string);
         filePath = data.file_path || '';
       } else if (tool === 'NotebookEdit') {
         content = data.new_source || '';
@@ -250,12 +312,32 @@ export class CodeGuardianAnalyzer implements IAnalyzer {
     return { ...this.config };
   }
 
-  getPerformanceStats(): any {
+  getPerformanceStats(): PerformanceStats {
     return this.performanceMonitor.getStats();
   }
 
   clearPerformanceStats(): void {
     this.performanceMonitor.clearStats();
+  }
+
+  /**
+   * Wraps a promise with a timeout to prevent hanging operations
+   */
+  private async withTimeout<T>(
+    promise: Promise<T>, 
+    timeoutMs: number, 
+    errorMessage: string
+  ): Promise<T> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error(`${errorMessage} (${timeoutMs}ms)`));
+      }, timeoutMs);
+      
+      // Clear timeout if the original promise resolves first
+      promise.finally(() => clearTimeout(timeoutId));
+    });
+
+    return Promise.race([promise, timeoutPromise]);
   }
 }
 

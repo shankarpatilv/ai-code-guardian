@@ -10,6 +10,11 @@ export interface IPatternDetector {
   detectPatterns(content: string, filePath: string): Promise<AnalysisIssue[]>;
   
   /**
+   * Detect patterns using pre-split lines for better performance
+   */
+  detectPatternsWithLines(lines: string[], filePath: string): Promise<AnalysisIssue[]>;
+  
+  /**
    * Get supported pattern types
    */
   getSupportedPatterns(): string[];

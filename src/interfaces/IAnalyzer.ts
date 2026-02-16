@@ -1,4 +1,4 @@
-import { CodeAnalysis, AnalyzerConfig, HookResult, SupportedLanguage } from '../types';
+import { CodeAnalysis, AnalyzerConfig, HookResult, SupportedLanguage, PerformanceStats } from '../types';
 
 /**
  * Interface for the main code analyzer
@@ -32,7 +32,7 @@ export interface IAnalyzer {
   /**
    * Get performance statistics
    */
-  getPerformanceStats(): any;
+  getPerformanceStats(): PerformanceStats;
   
   /**
    * Clear performance statistics
