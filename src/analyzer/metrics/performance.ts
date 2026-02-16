@@ -1,4 +1,5 @@
 import { PerformanceMonitor } from '../../utils/performance';
+import { PerformanceStats } from '../../types';
 
 /**
  * Performance monitoring utilities for analyzer metrics
@@ -23,7 +24,7 @@ export class AnalysisPerformanceMonitor {
   /**
    * Get current performance statistics
    */
-  getStats(): any {
+  getStats(): PerformanceStats {
     return PerformanceMonitor.getStats();
   }
 

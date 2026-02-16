@@ -12,8 +12,12 @@ export class SecurityPatternDetector implements IPatternDetector {
   ]);
 
   async detectPatterns(content: string, filePath: string): Promise<AnalysisIssue[]> {
-    const issues: AnalysisIssue[] = [];
     const lines = content.split('\n');
+    return this.detectPatternsWithLines(lines, filePath);
+  }
+
+  async detectPatternsWithLines(lines: string[], filePath: string): Promise<AnalysisIssue[]> {
+    const issues: AnalysisIssue[] = [];
 
     lines.forEach((line, index) => {
       // Check for hardcoded secrets

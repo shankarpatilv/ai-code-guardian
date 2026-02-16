@@ -17,7 +17,7 @@ export class HookCommand implements ICommand {
   }
 
   async execute(
-    _args: any, 
+    _args: unknown, 
     options: { tool?: string; file?: string; content?: string }
   ): Promise<void> {
     try {
