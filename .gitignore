@@ -67,4 +67,5 @@ pnpm-lock.yaml
 # .claude/tasks/
 
 # Learning and personal notes
-learning/
+docs/learning/
+PUBLISHING.md
