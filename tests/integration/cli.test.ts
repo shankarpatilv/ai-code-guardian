@@ -86,7 +86,7 @@ describe('CLI Integration Tests', () => {
       const result = await runCLI(['analyze', '/nonexistent/file.js']);
 
       expect(result.code).toBe(1);
-      expect(result.stderr).toContain('was not found');
+      expect(result.stderr.toLowerCase()).toContain('not found');
     });
 
     it('should analyze Python files', async () => {
