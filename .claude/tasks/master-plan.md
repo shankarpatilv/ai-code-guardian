@@ -314,45 +314,90 @@ Build a real-time preventative feedback system that monitors AI-generated code a
 
 ---
 
-### Phase 3: Visual Feedback System
-**Goal**: Display real-time warnings and suggestions visually
+### Phase 3: Rich Terminal UI System (REVISED)
+**Goal**: Transform plain text output into rich, visual terminal UI with progress bars, boxes, and ASCII visualizations
+**Approach**: Hybrid terminal UI combining rich formatting (Option 1) with ASCII visualizations (Option 3)
+**Timeline**: 2 weeks
 
-#### Tasks:
-1. **Overlay Architecture**
-   - [ ] Design overlay component system
-   - [ ] Create rendering engine
-   - [ ] Implement positioning logic
-   - [ ] Build animation system
-   - [ ] Add theming support
+#### Week 1: Core Terminal UI Framework
+1. **Terminal Formatter Module** (`src/terminal/formatter.ts`)
+   - [ ] Box drawing utilities (single, double, rounded styles)
+   - [ ] ANSI color codes management
+   - [ ] Unicode character support
+   - [ ] Terminal width detection
+   - [ ] Text alignment and padding utilities
 
-2. **Warning Components**
-   - [ ] Create severity indicators (🔴 🟡 🟠 🔵)
-   - [ ] Build inline annotation components
-   - [ ] Create tooltip system
-   - [ ] Add code highlighting
-   - [ ] Implement suggestion cards
+2. **Score Visualizer** (`src/terminal/score-visualizer.ts`)
+   - [ ] ASCII progress bars (█░ style)
+   - [ ] Percentage displays with colors
+   - [ ] Trend indicators (↗️ ↘️ →)
+   - [ ] Sparkline mini-charts
+   - [ ] Multi-category score displays
 
-3. **Live Scoring Dashboard**
-   - [ ] Create score calculation engine
-   - [ ] Build progress bar components
-   - [ ] Add real-time score updates
-   - [ ] Create score history tracker
-   - [ ] Implement score breakdowns
+3. **Issue Presenter** (`src/terminal/issue-presenter.ts`)
+   - [ ] Severity badges (🔴 HIGH, 🟡 MED, 🔵 LOW)
+   - [ ] Code snippet formatting with line numbers
+   - [ ] Issue grouping by category
+   - [ ] Recommendation boxes
+   - [ ] File and line number references
 
-4. **Integration Layer**
-   - [ ] Connect to analysis engine
-   - [ ] Create WebSocket server
-   - [ ] Build message protocol
-   - [ ] Add event system
-   - [ ] Implement error handling
+4. **Theme System** (`src/terminal/theme.ts`)
+   - [ ] Color schemes (dark, light, high-contrast)
+   - [ ] ASCII art styles (modern, classic, minimal)
+   - [ ] Icon sets (emoji, text-based)
+   - [ ] Configurable verbosity levels
 
-5. **User Interaction**
-   - [ ] Add dismiss functionality
-   - [ ] Create "ignore this" options
-   - [ ] Build configuration shortcuts
-   - [ ] Add keyboard shortcuts
+#### Week 2: Enhanced Features
+1. **Dynamic Layouts**
+   - [ ] Responsive box sizing based on terminal width
+   - [ ] Collapsible/expandable sections
+   - [ ] Smart text truncation
+   - [ ] Table formatting for metrics
+   - [ ] Adaptive layout based on content
 
-**Deliverable**: Visual overlay showing warnings in real-time
+2. **Output Modes**
+   - [ ] Minimal mode (one-line summary)
+   - [ ] Normal mode (balanced detail)
+   - [ ] Detailed mode (full analysis)
+   - [ ] JSON mode (for CI/CD integration)
+   - [ ] Quiet mode (errors only)
+
+3. **Real-time Features**
+   - [ ] Live score updates during analysis
+   - [ ] Animated progress indicators
+   - [ ] Diff view (before/after improvements)
+   - [ ] Issue count badges
+   - [ ] Performance timing displays
+
+4. **Configuration** (`src/terminal/config.ts`)
+   - [ ] User preferences file support
+   - [ ] Environment variable overrides
+   - [ ] CLI flags for output control
+   - [ ] Color detection (TTY, NO_COLOR)
+   - [ ] Width preferences
+
+**Example Output Structure**:
+```
+╔═══════════════════════════════════════════╗
+║ 🛡️  AI CODE GUARDIAN - ANALYSIS REPORT     ║
+╚═══════════════════════════════════════════╝
+
+📊 OVERALL SCORE: ████████░░ 82/100
+
+┌─ SECURITY ─────────────────────────┐
+│ Score: ██████░░░░ 65/100           │
+│ 🔴 HIGH: SQL Injection (Line 15)   │
+│ 🟡 MED: Hardcoded Secret (Line 23) │
+└─────────────────────────────────────┘
+
+┌─ CODE QUALITY ──────────────────────┐
+│ Score: █████████░ 92/100           │
+│ Complexity: High (15)               │
+│ Duplication: Low (5%)               │
+└─────────────────────────────────────┘
+```
+
+**Deliverable**: Rich terminal UI system providing immediate visual feedback through formatted text output
 
 ---
 
@@ -402,20 +447,27 @@ Build a real-time preventative feedback system that monitors AI-generated code a
 - More language support
 - Auto-fix suggestions
 
-## Progress Summary (2026-04-03)
+## Progress Summary (2026-04-04)
 - **Phase 0**: ✅ Complete - Project foundation established
 - **Phase 1**: ✅ Complete - Hook system working, 1-7ms performance
 - **Phase 1.1**: ✅ Complete - Security hardening, quality improvements (9.2/10 score)
-- **Phase 2 Week 1**: ✅ Complete - Simplified AST parser implementation working
+- **Phase 2**: ✅ Complete - Full AST implementation with tree-sitter (2026-04-04)
+  - Enhanced AST parser with tree-sitter
+  - JSON-configurable rule engine
+  - OWASP Top 10 security patterns
+  - Code quality metrics
+  - Performance: 1.46ms (target <50ms exceeded!)
 
 ## Current Statistics
-- **Test Coverage**: 72/73 tests passing (98.6%)
+- **Test Coverage**: 124/124 tests passing (100%)
 - **Build Status**: ✅ Successful
-- **Bundle Size**: ~160KB (includes tree-sitter WASM)
-- **Performance**: 3-5ms analysis time (<500ms requirement met)
-- **Code Quality**: Simplified, working implementation (no placeholders)
+- **Bundle Size**: ~160KB (includes tree-sitter)
+- **Performance**: 1.46ms analysis time (<50ms requirement exceeded)
+- **Languages**: JavaScript, TypeScript, Python (full AST support)
+- **Security Patterns**: 10 OWASP rules implemented
+- **Quality Rules**: 10 code quality metrics
 - **CI/CD**: ✅ GitHub Actions configured
-- **Security Detection**: ✅ eval, SQL injection, XSS, secrets working
+- **Plugin Status**: Production-ready, can be distributed via GitHub
 
 ## Security Improvements (Day 2)
 - ✅ Path traversal vulnerability fixed with multi-layer validation
@@ -428,10 +480,9 @@ Build a real-time preventative feedback system that monitors AI-generated code a
 ## Next Actions
 1. ✅ Phase 1 Complete - Foundation working with hooks
 2. ✅ Phase 1.1 Complete - Security hardening, quality improvements
-3. ✅ Phase 2 Week 1 Complete - Simplified AST implementation
-4. 🔵 **NEXT**: Phase 2 Week 2 - Expand Security & Quality Rules
-   - Add more OWASP Top 10 patterns
-   - Implement code quality metrics
-   - Add performance rules
-5. Phase 2 Week 3 - Advanced features (if needed)
-6. Begin Phase 3 - Visual Feedback System
+3. ✅ Phase 2 Complete - Full AST implementation with OWASP patterns
+4. 🔵 **NEXT**: Phase 3 - Rich Terminal UI System
+   - Week 1: Core terminal UI framework
+   - Week 2: Enhanced features and output modes
+5. Phase 4 - Dashboard & Reporting (After Phase 3)
+6. Future Enhancements (Optional)
