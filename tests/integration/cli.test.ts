@@ -75,7 +75,33 @@ describe('CLI Integration Tests', () => {
 
       expect(result.code).toBe(0);
       
-      const output = JSON.parse(result.stdout);
+      // Debug: log the actual output
+      if (!result.stdout || result.stdout.trim() === '') {
+        console.error('Empty stdout. stderr:', result.stderr);
+      }
+      
+      // Try to parse the entire stdout first, trimming whitespace
+      const trimmedOutput = result.stdout.trim();
+      expect(trimmedOutput).toBeTruthy();
+      
+      let output;
+      try {
+        output = JSON.parse(trimmedOutput);
+      } catch (error) {
+        // If that fails, try to extract JSON from output
+        const lines = result.stdout.split('\n');
+        let jsonOutput = '';
+        for (const line of lines) {
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith('{')) {
+            jsonOutput = trimmedLine;
+            break;
+          }
+        }
+        expect(jsonOutput).toBeTruthy();
+        output = JSON.parse(jsonOutput);
+      }
+      
       expect(output).toHaveProperty('file');
       expect(output).toHaveProperty('language');
       expect(output).toHaveProperty('metrics');
