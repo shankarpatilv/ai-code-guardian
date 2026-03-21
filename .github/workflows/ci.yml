@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for sensitive files
+      run: |
+        if find . -name "*.env" -o -path "*/.claude/memories/*" | grep -q .; then
+          echo "❌ Sensitive files found that shouldn't be committed"
+          exit 1
+        fi
+        echo "✅ No sensitive files detected"

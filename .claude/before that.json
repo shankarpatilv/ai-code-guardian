@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "pre-commit": {
+      "description": "Run AI Code Guardian checks before committing",
+      "command": "claude -p 'Review the staged changes and check for security issues, code quality problems, and ensure no sensitive files are being committed'"
+    },
+    "post-edit": {
+      "description": "Analyze code after edits",
+      "enabled": false,
+      "command": "echo 'Code edited, consider running /guardian-watch'"
+    }
+  },
+  "auto-save-memories": true,
+  "check-memories-on-start": true
+}

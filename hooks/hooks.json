@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/src/analyzer/analyze.sh",
+            "args": ["--tool", "${tool_name}", "--file", "${file_path}"],
+            "env": {
+              "GUARDIAN_MODE": "real-time",
+              "GUARDIAN_VISUAL": "true"
+            }
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/src/analyzer/pre-check.sh",
+            "args": ["--validate-patterns"]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "ai-code-guardian",
+  "version": "1.0.0",
+  "description": "Real-time preventative feedback system for AI-generated code with visual warnings and quality analysis",
+  "author": {
+    "name": "Vivek Patil"
+  },
+  "homepage": "https://github.com/vivekspatil/ai-code-guardian",
+  "repository": "https://github.com/vivekspatil/ai-code-guardian",
+  "license": "MIT",
+  "keywords": [
+    "code-review",
+    "security",
+    "quality",
+    "real-time",
+    "ai-safety",
+    "code-analysis",
+    "visual-feedback"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json"
+}
