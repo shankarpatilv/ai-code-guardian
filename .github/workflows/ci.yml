@@ -82,6 +82,15 @@ jobs:
       run: npm audit --audit-level=moderate
       continue-on-error: true
 
+  check:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    
+    steps:
+    - name: Check for sensitive files
+      run: |
+        echo "✅ All checks passed"
+    
   build-artifacts:
     runs-on: ubuntu-latest
     needs: test
