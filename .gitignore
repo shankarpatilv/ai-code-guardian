@@ -54,7 +54,7 @@ tmp/
 ehthumbs.db
 
 # Package manager files
-package-lock.json
+# package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -65,3 +65,6 @@ pnpm-lock.yaml
 # Optional: Keep task tracking local
 # Uncomment if you want to keep tasks private
 # .claude/tasks/
+
+# Learning and personal notes
+learning/

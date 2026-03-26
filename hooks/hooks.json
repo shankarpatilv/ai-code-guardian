@@ -6,11 +6,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/src/analyzer/analyze.sh",
-            "args": ["--tool", "${tool_name}", "--file", "${file_path}"],
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/analyze.sh",
+            "args": ["--tool", "${tool_name}", "--file", "${file_path}", "--content", "${tool_output}"],
             "env": {
               "GUARDIAN_MODE": "real-time",
-              "GUARDIAN_VISUAL": "true"
+              "GUARDIAN_VISUAL": "true",
+              "GUARDIAN_ROOT": "${CLAUDE_PLUGIN_ROOT}"
             }
           }
         ]
