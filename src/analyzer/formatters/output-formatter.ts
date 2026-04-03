@@ -45,7 +45,7 @@ export class OutputFormatter {
   /**
    * Format analysis as table data (for CLI table display)
    */
-  formatAsTable(analysis: CodeAnalysis): any[] {
+  formatAsTable(analysis: CodeAnalysis): Record<string, string | number>[] {
     if (analysis.issues.length === 0) {
       return [{
         File: analysis.file,

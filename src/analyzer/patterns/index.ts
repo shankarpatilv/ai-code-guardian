@@ -6,8 +6,8 @@ import { AnalysisIssue } from '../../types';
  * Pattern registry - orchestrates all pattern detection modules
  */
 export class PatternRegistry {
-  private securityDetector: SecurityPatternDetector;
-  private qualityDetector: QualityPatternDetector;
+  public securityDetector: SecurityPatternDetector;
+  public qualityDetector: QualityPatternDetector;
 
   constructor() {
     this.securityDetector = new SecurityPatternDetector();
@@ -17,10 +17,13 @@ export class PatternRegistry {
   async detectAllPatterns(content: string, filePath: string): Promise<AnalysisIssue[]> {
     const allIssues: AnalysisIssue[] = [];
 
-    // Run all detectors in parallel for better performance
+    // Split lines only once for better performance
+    const lines = content.split('\n');
+
+    // Run all detectors in parallel for better performance, sharing the pre-split lines
     const [securityIssues, qualityIssues] = await Promise.all([
-      this.securityDetector.detectPatterns(content, filePath),
-      this.qualityDetector.detectPatterns(content, filePath),
+      this.securityDetector.detectPatternsWithLines(lines, filePath),
+      this.qualityDetector.detectPatternsWithLines(lines, filePath),
     ]);
 
     allIssues.push(...securityIssues);

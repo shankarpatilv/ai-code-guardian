@@ -5,7 +5,7 @@ export interface ICommand {
   /**
    * Execute the command
    */
-  execute(args: any, options: any): Promise<void>;
+  execute(...args: unknown[]): Promise<void>;
   
   /**
    * Get command name

@@ -40,12 +40,26 @@ export interface CodeAnalysis {
   timestamp: number;
 }
 
+export interface EditOperation {
+  old_string: string;
+  new_string: string;
+  replace_all?: boolean;
+}
+
 export interface HookData {
   tool: string;
   operation: 'Write' | 'Edit' | 'MultiEdit' | 'NotebookEdit';
   filePath: string;
   content: string | string[];
   language?: string;
+  // MultiEdit specific fields
+  edits?: EditOperation[];
+  file_path?: string;
+  // Edit specific fields
+  new_string?: string;
+  // NotebookEdit specific fields
+  new_source?: string;
+  notebook_path?: string;
 }
 
 export interface AnalyzerConfig {
@@ -63,7 +77,24 @@ export interface RuleConfig {
   id: string;
   enabled: boolean;
   severity: Severity;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
+}
+
+export interface PerformanceStats {
+  [operation: string]: {
+    count: number;
+    average: number;
+    min: number;
+    max: number;
+  };
+}
+
+export interface CommandArgs {
+  [key: string]: string | boolean | undefined;
+}
+
+export interface CommandOptions {
+  [key: string]: string | boolean | undefined;
 }
 
 // Additional types needed for CLI and analyzer interface

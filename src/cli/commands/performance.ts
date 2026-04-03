@@ -15,7 +15,7 @@ export class PerformanceCommand implements ICommand {
     return 'Show performance statistics';
   }
 
-  async execute(_args: any, options: { clear?: boolean }): Promise<void> {
+  async execute(_args: unknown, options: { clear?: boolean }): Promise<void> {
     const analyzer = createAnalyzer();
     const stats = analyzer.getPerformanceStats();
     
