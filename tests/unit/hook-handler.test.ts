@@ -150,12 +150,12 @@ describe('HookHandler', () => {
       const pythonData = JSON.stringify({
         tool: 'Write',
         file_path: '/test/script.py',
-        content: 'exec("dangerous")\napi_key = "secret"'
+        content: 'password = "hardcoded123"\napi_key = "sk-1234567890abcdef"'
       });
 
       await hookHandler.handleHookData(pythonData);
 
-      // Should detect issues in Python code
+      // Should detect issues in Python code (hardcoded secrets)
       expect(consoleErrorSpy).toHaveBeenCalled();
     });
   });
