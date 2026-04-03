@@ -46,8 +46,8 @@ export class ConfigValidator {
   /**
    * Check if severity is valid
    */
-  private static isValidSeverity(severity: any): severity is Severity {
-    return ['error', 'warning', 'info'].includes(severity);
+  private static isValidSeverity(severity: unknown): severity is Severity {
+    return ['error', 'warning', 'info'].includes(severity as string);
   }
 
   /**

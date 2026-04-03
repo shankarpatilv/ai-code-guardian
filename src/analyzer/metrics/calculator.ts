@@ -7,18 +7,27 @@ import { IMetricsCalculator } from '../../interfaces';
 export class MetricsCalculator implements IMetricsCalculator {
   
   calculateBasicMetrics(content: string): CodeMetrics {
+    const lines = content.split('\n');
+    return this.calculateBasicMetricsWithLines(content, lines);
+  }
+
+  calculateBasicMetricsWithLines(content: string, lines: string[]): CodeMetrics {
     return {
-      linesOfCode: this.calculateLinesOfCode(content),
+      linesOfCode: this.calculateLinesOfCodeWithLines(lines),
       cyclomaticComplexity: this.calculateCyclomaticComplexity(content),
       cognitiveComplexity: this.calculateCognitiveComplexity(content),
       functionCount: this.calculateFunctionCount(content),
       classCount: this.calculateClassCount(content),
-      maxNestingDepth: this.calculateMaxNestingDepth(content),
+      maxNestingDepth: this.calculateMaxNestingDepthWithLines(lines),
     };
   }
 
   calculateLinesOfCode(content: string): number {
     const lines = content.split('\n');
+    return this.calculateLinesOfCodeWithLines(lines);
+  }
+
+  calculateLinesOfCodeWithLines(lines: string[]): number {
     const nonEmptyLines = lines.filter(line => line.trim().length > 0);
     return nonEmptyLines.length;
   }
@@ -46,6 +55,10 @@ export class MetricsCalculator implements IMetricsCalculator {
 
   calculateMaxNestingDepth(content: string): number {
     const lines = content.split('\n');
+    return this.calculateMaxNestingDepthWithLines(lines);
+  }
+
+  calculateMaxNestingDepthWithLines(lines: string[]): number {
     let maxDepth = 0;
     let currentDepth = 0;
 

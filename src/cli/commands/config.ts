@@ -15,7 +15,7 @@ export class ConfigCommand implements ICommand {
     return 'Manage configuration';
   }
 
-  async execute(_args: any, options: { show?: boolean; set?: string }): Promise<void> {
+  async execute(_args: unknown, options: { show?: boolean; set?: string }): Promise<void> {
     if (options.show) {
       const analyzer = createAnalyzer();
       const config = analyzer.getConfig();

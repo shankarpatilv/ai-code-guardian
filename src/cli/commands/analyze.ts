@@ -18,11 +18,13 @@ export class AnalyzeCommand implements ICommand {
   }
 
   async execute(file: string | undefined, options: Partial<CliOptions>): Promise<void> {
+    // Store original console methods for restoration in error cases
+    const originalConsoleLog = console.log;
+    const originalConsoleWarn = console.warn;
+    const originalConsoleError = console.error;
+    
     try {
       // Suppress logging for JSON format
-      const originalConsoleLog = console.log;
-      const originalConsoleWarn = console.warn;
-      const originalConsoleError = console.error;
       if (options.format === 'json') {
         console.log = () => {}; // Suppress all console.log output
         console.warn = () => {};
@@ -79,7 +81,30 @@ export class AnalyzeCommand implements ICommand {
       }
 
     } catch (error) {
-      console.error(chalk.red('Analysis failed:'), error instanceof Error ? error.message : error);
+      // Restore console methods if they were suppressed
+      console.log = originalConsoleLog;
+      console.warn = originalConsoleWarn;
+      console.error = originalConsoleError;
+      
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Provide more user-friendly error messages
+      if (errorMessage.includes('File not found')) {
+        console.error(chalk.red('Error:'), `The file "${file}" was not found.`);
+        console.error(chalk.gray('Please check the file path and try again.'));
+      } else if (errorMessage.includes('Permission denied')) {
+        console.error(chalk.red('Error:'), `Permission denied accessing "${file}".`);
+        console.error(chalk.gray('Check file permissions and try again.'));
+      } else if (errorMessage.includes('timeout')) {
+        console.error(chalk.red('Error:'), 'Analysis timed out.');
+        console.error(chalk.gray('The file may be too large or complex. Try splitting it into smaller files.'));
+      } else if (errorMessage.includes('too large')) {
+        console.error(chalk.red('Error:'), 'File is too large for analysis.');
+        console.error(chalk.gray('Maximum file size is 1MB. Consider analyzing smaller files.'));
+      } else {
+        console.error(chalk.red('Analysis failed:'), errorMessage);
+      }
+      
       process.exit(1);
     }
   }

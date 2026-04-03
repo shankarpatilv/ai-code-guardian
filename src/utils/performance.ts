@@ -45,14 +45,22 @@ export class PerformanceTimer {
 export class PerformanceMonitor {
   private static readonly WARNING_THRESHOLD = 300; // 300ms
   private static readonly ERROR_THRESHOLD = 500; // 500ms
+  private static readonly MAX_STATS_PER_OPERATION = 1000; // Prevent memory leaks
   private static stats: { [key: string]: number[] } = {};
 
   static checkPerformance(duration: number, operation: string): void {
-    // Record stats
+    // Record stats with memory leak prevention
     if (!this.stats[operation]) {
       this.stats[operation] = [];
     }
+    
     this.stats[operation].push(duration);
+    
+    // Prevent memory leaks by limiting the number of stored stats
+    if (this.stats[operation].length > this.MAX_STATS_PER_OPERATION) {
+      // Keep only the most recent stats (FIFO)
+      this.stats[operation] = this.stats[operation].slice(-this.MAX_STATS_PER_OPERATION / 2);
+    }
 
     // Check thresholds
     if (duration > this.ERROR_THRESHOLD) {
