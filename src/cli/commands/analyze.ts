@@ -89,7 +89,7 @@ export class AnalyzeCommand implements ICommand {
       const errorMessage = error instanceof Error ? error.message : String(error);
       
       // Provide more user-friendly error messages
-      if (errorMessage.includes('File not found')) {
+      if (errorMessage.includes('ENOENT') || errorMessage.includes('File not found')) {
         console.error(chalk.red('Error:'), `The file "${file}" was not found.`);
         console.error(chalk.gray('Please check the file path and try again.'));
       } else if (errorMessage.includes('Permission denied')) {
