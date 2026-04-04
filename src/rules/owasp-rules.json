@@ -1,0 +1,308 @@
+[
+  {
+    "id": "a01-broken-access-control",
+    "name": "Broken Access Control",
+    "description": "Potential access control vulnerability detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(req\\.user|req\\.session).*(admin|role|permission)"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Implement proper access control checks and validation",
+    "examples": {
+      "bad": ["if (req.user.isAdmin) { /* unsafe */ }"],
+      "good": ["if (await checkPermission(req.user, 'admin')) { /* safe */ }"]
+    }
+  },
+  {
+    "id": "a02-cryptographic-failures",
+    "name": "Cryptographic Failures",
+    "description": "Weak or insecure cryptographic implementation detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "string_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(md5|sha1|des|3des|rc4)"
+          }
+        ]
+      },
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "createHash\\('(md5|sha1)'\\)"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Use strong cryptographic algorithms like SHA-256, AES-256, or bcrypt",
+    "examples": {
+      "bad": ["crypto.createHash('md5')", "hashlib.md5()"],
+      "good": ["crypto.createHash('sha256')", "hashlib.sha256()"]
+    }
+  },
+  {
+    "id": "a03-injection-sql",
+    "name": "SQL Injection",
+    "description": "Potential SQL injection vulnerability detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "template_string",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(SELECT|INSERT|UPDATE|DELETE).*\\$\\{.*\\}"
+          }
+        ]
+      },
+      {
+        "nodeType": "string_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(SELECT|INSERT|UPDATE|DELETE).*(\\+|%)"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Use parameterized queries or prepared statements",
+    "examples": {
+      "bad": ["SELECT * FROM users WHERE id = " + userId"],
+      "good": ["SELECT * FROM users WHERE id = ?", "[userId]"]
+    }
+  },
+  {
+    "id": "a03-injection-nosql",
+    "name": "NoSQL Injection",
+    "description": "Potential NoSQL injection vulnerability detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript"],
+    "patterns": [
+      {
+        "nodeType": "object_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "\\$where|\\$regex|\\$ne"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Validate and sanitize all user inputs, avoid dynamic query construction",
+    "examples": {
+      "bad": ["{ $where: userInput }"],
+      "good": ["{ name: { $eq: sanitizedInput } }"]
+    }
+  },
+  {
+    "id": "a04-insecure-design-hardcoded-secrets",
+    "name": "Hardcoded Secrets",
+    "description": "Hardcoded credentials or secrets detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "string_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(password|secret|key|token)\\s*[=:]\\s*['\"](?!\\$|{{)[^'\"]{8,}"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Use environment variables or secure configuration management",
+    "examples": {
+      "bad": ["const password = 'hardcoded123'"],
+      "good": ["const password = process.env.PASSWORD"]
+    }
+  },
+  {
+    "id": "a05-security-misconfiguration-cors",
+    "name": "Insecure CORS Configuration",
+    "description": "Overly permissive CORS configuration detected",
+    "severity": "warning",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript"],
+    "patterns": [
+      {
+        "nodeType": "string_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "equals",
+            "value": "*"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Specify explicit origins instead of using wildcard (*)",
+    "examples": {
+      "bad": ["'Access-Control-Allow-Origin': '*'"],
+      "good": ["'Access-Control-Allow-Origin': 'https://trusted-domain.com'"]
+    }
+  },
+  {
+    "id": "a06-vulnerable-components-eval",
+    "name": "Dangerous Function Usage",
+    "description": "Use of potentially dangerous functions that can execute arbitrary code",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "\\b(eval|exec|execSync|spawn|fork)\\s*\\("
+          }
+        ]
+      }
+    ],
+    "suggestion": "Avoid dynamic code execution; use safer alternatives",
+    "examples": {
+      "bad": ["eval(userInput)", "exec(command)"],
+      "good": ["JSON.parse(userInput)", "predefinedCommands[command]()"]
+    }
+  },
+  {
+    "id": "a07-identity-failures-weak-auth",
+    "name": "Weak Authentication",
+    "description": "Potentially weak authentication mechanism detected",
+    "severity": "warning",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "string_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "basic\\s+auth|simple\\s+password"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Implement strong authentication mechanisms with proper session management",
+    "examples": {
+      "bad": ["'basic auth'"],
+      "good": ["JWT with proper validation"]
+    }
+  },
+  {
+    "id": "a08-data-integrity-failures",
+    "name": "Data Integrity Failures",
+    "description": "Potential data integrity issue detected",
+    "severity": "warning",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "assignment_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "innerHTML|outerHTML|document\\.write"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Use safe DOM manipulation methods and validate all inputs",
+    "examples": {
+      "bad": ["element.innerHTML = userInput"],
+      "good": ["element.textContent = sanitizedInput"]
+    }
+  },
+  {
+    "id": "a09-logging-monitoring-failures",
+    "name": "Insufficient Logging",
+    "description": "Security events should be properly logged",
+    "severity": "info",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(login|authenticate|authorize).*success"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Implement comprehensive security event logging",
+    "examples": {
+      "bad": ["// No logging after authentication"],
+      "good": ["logger.info('User authenticated', { userId, timestamp })"]
+    }
+  },
+  {
+    "id": "a10-ssrf-vulnerability",
+    "name": "Server-Side Request Forgery",
+    "description": "Potential SSRF vulnerability detected",
+    "severity": "error",
+    "category": "security",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(fetch|axios|request|urllib).*\\$\\{.*\\}"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Validate and whitelist URLs, avoid user-controlled URLs in server requests",
+    "examples": {
+      "bad": ["fetch(userProvidedUrl)"],
+      "good": ["fetch(validateUrl(userInput))"]
+    }
+  }
+]
