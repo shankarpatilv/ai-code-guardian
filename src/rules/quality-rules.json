@@ -1,0 +1,259 @@
+[
+  {
+    "id": "complexity-high-cyclomatic",
+    "name": "High Cyclomatic Complexity",
+    "description": "Function has high cyclomatic complexity",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "function_declaration",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "complexity_threshold",
+            "value": 10
+          }
+        ]
+      }
+    ],
+    "suggestion": "Consider breaking this function into smaller, more focused functions",
+    "examples": {
+      "bad": ["function with 15+ if/else statements"],
+      "good": ["Multiple smaller functions with single responsibilities"]
+    }
+  },
+  {
+    "id": "function-length-long",
+    "name": "Function Too Long",
+    "description": "Function exceeds recommended length",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "function_declaration",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "line_count_threshold",
+            "value": 50
+          }
+        ]
+      }
+    ],
+    "suggestion": "Consider breaking this function into smaller functions",
+    "examples": {
+      "bad": ["function with 100+ lines"],
+      "good": ["Multiple smaller functions"]
+    }
+  },
+  {
+    "id": "naming-convention-camelcase",
+    "name": "Naming Convention Violation",
+    "description": "Variable or function name does not follow camelCase convention",
+    "severity": "info",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript"],
+    "patterns": [
+      {
+        "nodeType": "identifier",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "^[a-z]+(_[a-z]+)+$"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Use camelCase for variable and function names",
+    "examples": {
+      "bad": ["user_name", "get_user_data"],
+      "good": ["userName", "getUserData"]
+    }
+  },
+  {
+    "id": "unused-variables",
+    "name": "Unused Variable",
+    "description": "Variable is declared but never used",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "variable_declarator",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "unused_check"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Remove unused variables or use them appropriately",
+    "examples": {
+      "bad": ["const unusedVar = 'test';"],
+      "good": ["// Remove or use the variable"]
+    }
+  },
+  {
+    "id": "magic-numbers",
+    "name": "Magic Number",
+    "description": "Numeric literal should be replaced with named constant",
+    "severity": "info",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "number_literal",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "^(?!0$|1$|2$)[0-9]{2,}$"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Replace magic numbers with named constants",
+    "examples": {
+      "bad": ["if (age > 18)"],
+      "good": ["const LEGAL_AGE = 18; if (age > LEGAL_AGE)"]
+    }
+  },
+  {
+    "id": "duplicate-code",
+    "name": "Code Duplication",
+    "description": "Potential code duplication detected",
+    "severity": "info",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "block_statement",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "duplicate_check"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Extract common code into reusable functions",
+    "examples": {
+      "bad": ["Same code blocks repeated"],
+      "good": ["Extracted into shared function"]
+    }
+  },
+  {
+    "id": "deep-nesting",
+    "name": "Deep Nesting",
+    "description": "Code has excessive nesting levels",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "if_statement",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "nesting_depth",
+            "value": 4
+          }
+        ]
+      }
+    ],
+    "suggestion": "Reduce nesting by using early returns or extracting functions",
+    "examples": {
+      "bad": ["if { if { if { if { ... } } } }"],
+      "good": ["Use early returns and guard clauses"]
+    }
+  },
+  {
+    "id": "missing-error-handling",
+    "name": "Missing Error Handling",
+    "description": "Function call that may throw exceptions lacks error handling",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript"],
+    "patterns": [
+      {
+        "nodeType": "call_expression",
+        "conditions": [
+          {
+            "type": "text",
+            "operator": "matches",
+            "regex": "(JSON\\.parse|fetch|require|import)"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Add proper error handling with try-catch blocks",
+    "examples": {
+      "bad": ["JSON.parse(data)"],
+      "good": ["try { JSON.parse(data) } catch (error) { ... }"]
+    }
+  },
+  {
+    "id": "large-parameter-list",
+    "name": "Too Many Parameters",
+    "description": "Function has too many parameters",
+    "severity": "info",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "function_declaration",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "parameter_count",
+            "value": 5
+          }
+        ]
+      }
+    ],
+    "suggestion": "Consider using an options object or reducing parameters",
+    "examples": {
+      "bad": ["function(a, b, c, d, e, f, g)"],
+      "good": ["function(options) or fewer parameters"]
+    }
+  },
+  {
+    "id": "inconsistent-return",
+    "name": "Inconsistent Return",
+    "description": "Function has inconsistent return types or missing returns",
+    "severity": "warning",
+    "category": "quality",
+    "enabled": true,
+    "languages": ["javascript", "typescript", "python"],
+    "patterns": [
+      {
+        "nodeType": "function_declaration",
+        "conditions": [
+          {
+            "type": "custom",
+            "operator": "return_consistency_check"
+          }
+        ]
+      }
+    ],
+    "suggestion": "Ensure all code paths return consistent types",
+    "examples": {
+      "bad": ["function that sometimes returns string, sometimes number"],
+      "good": ["function with consistent return types"]
+    }
+  }
+]

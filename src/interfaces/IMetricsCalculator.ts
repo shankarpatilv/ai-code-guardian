@@ -38,4 +38,9 @@ export interface IMetricsCalculator {
    * Calculate maximum nesting depth
    */
   calculateMaxNestingDepth(content: string): number;
+  
+  /**
+   * Calculate advanced metrics with AST (optional)
+   */
+  calculateAdvancedMetrics?(content: string, filePath: string): Promise<CodeMetrics>;
 }
